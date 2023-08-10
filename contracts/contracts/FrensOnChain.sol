@@ -19,9 +19,9 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
       int256 hunger;
       int256 energy;
       int256 cleanliness;
-      string frenColor1;
-      string frenColor2;
-      string frenColor3;
+      // string frenColor1;
+      // string frenColor2;
+      // string frenColor3;
       uint256 bornTimestamp;
    }
    
@@ -48,9 +48,9 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
         100,
         100,
         100,        
-        randomNum(361, block.prevrandao, supply).toString(),
-        randomNum(361, block.timestamp, supply+30).toString(),
-        randomNum(361, block.prevrandao, block.timestamp).toString(),
+        // randomNum(361, block.prevrandao, supply).toString(),
+        // randomNum(361, block.timestamp, supply+30).toString(),
+        // randomNum(361, block.prevrandao, block.timestamp).toString(),
         block.timestamp
         );
     
@@ -159,21 +159,21 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
   }
 
 //if the fren is dead for over 10 days, any user can rescue it and get possession of it
-  function rescue(uint256 _tokenId) payable public {
-    require(_exists(_tokenId),"ERC721Metadata: Query for nonexistent token");
-    require(!isAlive(_tokenId),"That Fren is still alive!");
-    require(msg.value >= rescueCost);
-    Fren storage fren = frens[_tokenId];
-    require(block.timestamp - timeOfDeath(_tokenId) > 86400*10);
-    fren.hunger = 100;
-    fren.energy = 100;
-    fren.cleanliness = 100;
-    fren.happiness = 100;
-    //update both frens and frensOfOwner accordingly to the new owner
-    address owner = ownerOf(_tokenId);
-    payable(owner).transfer(msg.value);
-    _safeTransfer(owner, msg.sender, _tokenId, "");
-  }
+  // function rescue(uint256 _tokenId) payable public {
+  //   require(_exists(_tokenId),"ERC721Metadata: Query for nonexistent token");
+  //   require(!isAlive(_tokenId),"That Fren is still alive!");
+  //   require(msg.value >= rescueCost);
+  //   Fren storage fren = frens[_tokenId];
+  //   require(block.timestamp - timeOfDeath(_tokenId) > 86400*10);
+  //   fren.hunger = 100;
+  //   fren.energy = 100;
+  //   fren.cleanliness = 100;
+  //   fren.happiness = 100;
+  //   //update both frens and frensOfOwner accordingly to the new owner
+  //   address owner = ownerOf(_tokenId);
+  //   payable(owner).transfer(msg.value);
+  //   _safeTransfer(owner, msg.sender, _tokenId, "");
+  // }
   
   function buildImage(uint256 _tokenId) public view returns(string memory) {
     // Fren memory currentFren = frens[_tokenId];
