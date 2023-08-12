@@ -17,6 +17,7 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
 
    struct Fren { 
       string name;
+      string givenName;
       string description;
       int256 happiness;
       int256 energy;
@@ -47,6 +48,7 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     
     Fren memory newFren = Fren(
         string(abi.encodePacked('Frens On Chain #', uint256(supply + 1).toString())), 
+        "",
         "Frens On Chain is 100% on-chain, dynamic, NFT game. Frens On Chain last forever.",
         101,
         101,
@@ -158,10 +160,19 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     Fren memory currentFren = frens[_tokenId];
     bytes memory imagePart2;
     int256 daysAlive = calculateDaysAlive(_tokenId); 
-    // int256 hunger = currentFren.hunger - daysAlive;
+    string memory givenName = currentFren.givenName;
     int256 energy = currentFren.energy - daysAlive;
     int256 cleanliness = currentFren.cleanliness - daysAlive;
     int256 happiness = currentFren.happiness - daysAlive;
+    if(energy >= 100000){
+        energy = 99999;
+    }
+    if(cleanliness >= 100000){
+        cleanliness = 99999;
+    }
+    if(happiness >= 100000){
+        happiness = 99999;
+    }
     // string memory name = currentFren.name;
     // uint256 backGroundColor = randomNum(361, block.prevrandao, _tokenId+100); 
     bytes memory imagePart1 = bytes(
@@ -171,7 +182,7 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
         );
     bytes memory imagePart3 = bytes(
         abi.encodePacked(
-            '<text x="1" y="1.5" class="prefix__small">#',_tokenId.toString(),'</text><text x="1.1" y="3" class="prefix__small">Toby</text><text x="1" y="21.3" class="prefix__small">Happiness: ',happiness.toString(),'</text><text x="8" y="21.3" class="prefix__small">Energy: ',energy.toString(),'</text><text x="14" y="21.3" class="prefix__small">Cleanliness: ',cleanliness.toString(),'</text></svg>'
+            '<text x="1" y="1.5" class="prefix__small">#',_tokenId.toString(),'</text><text x="1.1" y="3" class="prefix__small">',givenName,'</text><text x="1" y="21.3" class="prefix__small">Happiness: ',happiness.toString(),'</text><text x="8" y="21.3" class="prefix__small">Energy: ',energy.toString(),'</text><text x="14" y="21.3" class="prefix__small">Cleanliness: ',cleanliness.toString(),'</text></svg>'
         )
     );
     if(isAlive(_tokenId)){
@@ -201,7 +212,7 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
         imagePart2 = FrenStates2.Fren2StringDead();
         imagePart3 = bytes(
           abi.encodePacked(
-              '<text x="1" y="1.5" class="prefix__small">#',_tokenId.toString(),'</text><text x="1.1" y="3" class="prefix__small">Toby</text><text x="1" y="21.3" class="prefix__small">Happiness: 0</text><text x="8" y="21.3" class="prefix__small">Energy: 0</text><text x="14" y="21.3" class="prefix__small">Cleanliness: 0</text></svg>'
+              '<text x="1" y="1.5" class="prefix__small">#',_tokenId.toString(),'</text><text x="1.1" y="3" class="prefix__small">',givenName,'</text><text x="1" y="21.3" class="prefix__small">Happiness: -----</text><text x="8" y="21.3" class="prefix__small">Energy: -----</text><text x="14" y="21.3" class="prefix__small">Cleanliness: -----</text></svg>'
           )
         );
         string memory svg = Base64.encode(bytes(
@@ -239,7 +250,7 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     require(ownerOf(_tokenId) == msg.sender,"You are not the owner's of this fren");
     require(bytes(_name).length <= 10, "Name can't be more then 10 characters");
     Fren storage fren = frens[_tokenId];
-    fren.name = _name;
+    fren.givenName = _name;
   }
 
   function withdraw() public payable onlyOwner {
