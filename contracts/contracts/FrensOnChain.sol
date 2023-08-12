@@ -26,22 +26,20 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
       string frenColor2;
       string frenColor3;
       string frenColor4;
-      string frenColor5;
       uint256 bornTimestamp;
    }
    
    mapping (uint256 => Fren) public frens;
    mapping (address => uint256[]) public frensOfOwner;
-   uint256 public generationCost = 0.1 ether;
-   uint256 public feedCost = 0.01 ether;
-   uint256 public cleanCost = 0.01 ether;
-   uint256 public playCost = 0.01 ether;
+   uint256 public generationCost = 0.005 ether;
+   uint256 public feedCost = 0.0005 ether;
+   uint256 public cleanCost = 0.0005 ether;
+   uint256 public playCost = 0.0005 ether;
    uint256 public reviveCost = 0.05 ether;
-   uint256 public rescueCost = 0.05 ether;
 
   //  event Eaten (uint256 indexed _eaterId, uint256 indexed _eatenId);
    
-   constructor() ERC721("FrensOnChain", "FREN") {}
+   constructor() ERC721("FrensOnChain", "FRENS") {}
 
   function mint() public payable  {
     uint256 supply = totalSupply();
@@ -57,7 +55,6 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
         randomNum(361, block.timestamp, supply+30).toString(),
         randomNum(101, block.prevrandao, block.timestamp).toString(),
         randomNum(361, block.prevrandao, supply+10).toString(),
-        randomNum(361, block.timestamp, supply+20).toString(),
         block.timestamp
         );
     
@@ -84,7 +81,7 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     require(ownerOf(_tokenId) == msg.sender,"You are not the owner's of the Fren");
     require(msg.value >= feedCost);
     Fren storage fren = frens[_tokenId];
-    fren.energy = fren.energy + 2;
+    fren.energy = fren.energy + 3;
   }
 
   function clean(uint256 _tokenId) payable public {
@@ -93,7 +90,7 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     require(ownerOf(_tokenId) == msg.sender,"You are not the owner's of the Fren");
     require(msg.value >= cleanCost);
     Fren storage fren = frens[_tokenId];
-    fren.cleanliness = fren.cleanliness + 2;
+    fren.cleanliness = fren.cleanliness + 3;
   }
 
   function play(uint256 _tokenId) payable public {
@@ -102,7 +99,7 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     require(ownerOf(_tokenId) == msg.sender,"You are not the owner's of the Fren");
     require(msg.value >= playCost);
     Fren storage fren = frens[_tokenId];
-    fren.happiness = fren.happiness + 2;
+    fren.happiness = fren.happiness + 3;
   }
 
   function calculateDaysAlive(uint256 _tokenId) public view returns(int256) {
@@ -173,8 +170,6 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     if(happiness >= 100000){
         happiness = 99999;
     }
-    // string memory name = currentFren.name;
-    // uint256 backGroundColor = randomNum(361, block.prevrandao, _tokenId+100); 
     bytes memory imagePart1 = bytes(
         abi.encodePacked(
             '<svg xmlns="http://www.w3.org/2000/svg" width="500" height="550" viewBox="0 0 20 22" preserveAspectRatio="xMidYMid slice"><style>.prefix__small{font:.7px Comic Sans MS}</style><defs><linearGradient id="prefix__background1"><stop stop-color="hsl(50, 70%, 50%)"/></linearGradient></defs><defs><linearGradient id="prefix__background2"><stop stop-color="hsl(',currentFren.frenColor1,', 30%, 50%)"/></linearGradient></defs><defs><linearGradient id="prefix__background3"><stop stop-color="hsl(',currentFren.frenColor2,', 30%, 50%)"/></linearGradient></defs><defs><linearGradient id="prefix__background4"><stop stop-color="hsl(360, 70%, ',currentFren.frenColor3,'%)"/></linearGradient></defs><defs><linearGradient id="prefix__background5"><stop stop-color="hsl(',currentFren.frenColor4,', 50%, 50%)"/></linearGradient></defs>'
@@ -192,7 +187,7 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
           imagePart2 = FrenStates1.Fren2StringHappy();
         }
         // else if those valuse are between 40 and 70, fren is neutral
-        else if(energy >= 40 && energy < 70 && cleanliness >= 40 && cleanliness < 70 && happiness >= 40 && happiness < 70){
+        else if(energy >= 40 && cleanliness >= 40 && happiness >= 40){
           imagePart2 = FrenStates1.Fren2StringNeutral();
         }
         // else fren is sad
