@@ -7,11 +7,11 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Base64.sol";
 import "./FrenAlive.sol";
-import "./FrenImage.sol";
 
 
 contract FrensOnChain is ERC721Enumerable, Ownable {
   using Strings for uint256;
+  using Strings for int256;
 
    struct Fren { 
       string name;
@@ -20,9 +20,11 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
       int256 hunger;
       int256 energy;
       int256 cleanliness;
-      // string frenColor1;
-      // string frenColor2;
-      // string frenColor3;
+      string frenColor1;
+      string frenColor2;
+      string frenColor3;
+      string frenColor4;
+      string frenColor5;
       uint256 bornTimestamp;
    }
    
@@ -45,13 +47,15 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     Fren memory newFren = Fren(
         string(abi.encodePacked('Frens On Chain #', uint256(supply + 1).toString())), 
         "Frens On Chain is 100% on-chain, dynamic, NFT game. Frens On Chain last forever.",
-        100,
-        100,
-        100,
-        100,        
-        // randomNum(361, block.prevrandao, supply).toString(),
-        // randomNum(361, block.timestamp, supply+30).toString(),
-        // randomNum(361, block.prevrandao, block.timestamp).toString(),
+        101,
+        101,
+        101,
+        101,        
+        randomNum(361, block.prevrandao, supply).toString(),
+        randomNum(361, block.timestamp, supply+30).toString(),
+        randomNum(101, block.prevrandao, block.timestamp).toString(),
+        randomNum(361, block.prevrandao, supply+10).toString(),
+        randomNum(361, block.timestamp, supply+20).toString(),
         block.timestamp
         );
     
@@ -177,18 +181,35 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
   // }
   
   function buildImage(uint256 _tokenId) public view returns(string memory) {
-    // Fren memory currentFren = frens[_tokenId];
+    Fren memory currentFren = frens[_tokenId];
 
-    // int256 daysAlive = calculateDaysAlive(_tokenId); 
+    int256 daysAlive = calculateDaysAlive(_tokenId); 
+    // int256 hunger = currentFren.hunger - daysAlive;
+    int256 energy = currentFren.energy - daysAlive;
+    int256 cleanliness = currentFren.cleanliness - daysAlive;
+    int256 happiness = currentFren.happiness - daysAlive;
+    // string memory name = currentFren.name;
     // uint256 backGroundColor = randomNum(361, block.prevrandao, _tokenId+100); 
 
     if(isAlive(_tokenId)){
-        bytes memory imagePart1 = FrenAlive.Fren2String();
+        bytes memory imagePart1 = bytes(
+        abi.encodePacked(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="500" height="550" viewBox="0 0 20 22" preserveAspectRatio="xMidYMid slice"><style>.prefix__small{font:.7px Comic Sans MS}</style><defs><linearGradient id="prefix__background1"><stop stop-color="hsl(50, 70%, 50%)"/></linearGradient></defs><defs><linearGradient id="prefix__background2"><stop stop-color="hsl(',currentFren.frenColor1,', 30%, 50%)"/></linearGradient></defs><defs><linearGradient id="prefix__background3"><stop stop-color="hsl(',currentFren.frenColor2,', 30%, 50%)"/></linearGradient></defs><defs><linearGradient id="prefix__background4"><stop stop-color="hsl(360, 70%, ',currentFren.frenColor3,'%)"/></linearGradient></defs><defs><linearGradient id="prefix__background5"><stop stop-color="hsl(',currentFren.frenColor4,', 50%, 50%)"/></linearGradient></defs>'
+        )
+        );
+        bytes memory imagePart2 = FrenAlive.Fren2String();
+        bytes memory imagePart3 = bytes(
+        abi.encodePacked(
+            '<text x="1" y="1.5" class="prefix__small">#',_tokenId.toString(),'</text><text x="1.1" y="3" class="prefix__small">Toby</text><text x="1" y="21.3" class="prefix__small">Happiness: ',happiness.toString(),'</text><text x="8" y="21.3" class="prefix__small">Energy: ',energy.toString(),'</text><text x="14" y="21.3" class="prefix__small">Cleanliness: ',cleanliness.toString(),'</text></svg>'
+        )
+        );
         string memory svg = Base64.encode(bytes(
           abi.encodePacked(
-              imagePart1
+              imagePart1,
+              imagePart2,
+              imagePart3
           )
-      ));
+        ));
         return svg;
     }
     return "dead";
@@ -213,8 +234,10 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     return buildMetadata(_tokenId);
   }
 
+// name can't be more then 10 characters
   function setFrenName(string memory _name, uint256 _tokenId) public {
     require(ownerOf(_tokenId) == msg.sender,"You are not the owner's of this fren");
+    require(bytes(_name).length <= 10, "Name can't be more then 10 characters");
     Fren storage fren = frens[_tokenId];
     fren.name = _name;
   }
