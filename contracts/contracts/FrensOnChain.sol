@@ -36,8 +36,6 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
    uint256 public cleanCost = 0.0005 ether;
    uint256 public playCost = 0.0005 ether;
    uint256 public reviveCost = 0.05 ether;
-
-  //  event Eaten (uint256 indexed _eaterId, uint256 indexed _eatenId);
    
    constructor() ERC721("FrensOnChain", "FRENS") {}
 
@@ -47,7 +45,7 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     Fren memory newFren = Fren(
         string(abi.encodePacked('Frens On Chain #', uint256(supply + 1).toString())), 
         "",
-        "Frens On Chain is 100% on-chain, dynamic, NFT game. Frens On Chain last forever.",
+        "Frens On Chain are 100% on-chain generated, dynamic NFTs and your new on-chain frens. Take care of your fren by feeding it, playing with it and cleaning it, your fren will appreciate that and its appearance will change accordingly, remember, Frens On Chain last forever!",
         101,
         101,
         101,        
@@ -109,7 +107,7 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     return daysAlive;
   }
 
-  //every day, the fren loses 1 hunger, 1 energy, 1 cleanliness, and 1 happiness
+  //every day, the fren loses 1 energy, 1 cleanliness, and 1 happiness
   //to check if the fren is alive, we check if any of the stats are 0
   function isAlive(uint256 _tokenId) public view returns(bool) {
     require(_exists(_tokenId),"ERC721Metadata: Query for nonexistent token");
@@ -134,24 +132,8 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     fren.energy = 101;
     fren.cleanliness = 101;
     fren.happiness = 101;
+    fren.bornTimestamp = block.timestamp;
   }
-
-//if the fren is dead for over 10 days, any user can rescue it and get possession of it
-  // function rescue(uint256 _tokenId) payable public {
-  //   require(_exists(_tokenId),"ERC721Metadata: Query for nonexistent token");
-  //   require(!isAlive(_tokenId),"That Fren is still alive!");
-  //   require(msg.value >= rescueCost);
-  //   Fren storage fren = frens[_tokenId];
-  //   require(block.timestamp - timeOfDeath(_tokenId) > 86400*10);
-  //   fren.hunger = 100;
-  //   fren.energy = 100;
-  //   fren.cleanliness = 100;
-  //   fren.happiness = 100;
-  //   //update both frens and frensOfOwner accordingly to the new owner
-  //   address owner = ownerOf(_tokenId);
-  //   payable(owner).transfer(msg.value);
-  //   _safeTransfer(owner, msg.sender, _tokenId, "");
-  // }
   
   function buildImage(uint256 _tokenId) public view returns(string memory) {
     Fren memory currentFren = frens[_tokenId];
@@ -240,10 +222,10 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     return buildMetadata(_tokenId);
   }
 
-// name can't be more then 10 characters
+  // given name can't be more than 10 characters
   function setFrenName(string memory _name, uint256 _tokenId) public {
     require(ownerOf(_tokenId) == msg.sender,"You are not the owner's of this fren");
-    require(bytes(_name).length <= 10, "Name can't be more then 10 characters");
+    require(bytes(_name).length <= 10, "Name can't be more than 10 characters");
     Fren storage fren = frens[_tokenId];
     fren.givenName = _name;
   }
@@ -252,11 +234,4 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     (bool os, ) = payable(owner()).call{value: address(this).balance}("");
     require(os);
   }
-
-  // modifier ownerGamer() {
-  //     if (msg.sender != owner) {
-  //         require(msg.value > 0, "A payment is required");
-  //     }
-  //     _;
-  // }
 }
