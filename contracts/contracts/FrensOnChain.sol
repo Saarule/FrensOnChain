@@ -6,8 +6,8 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Base64.sol";
-import "./FrenAlive1.sol";
-import "./FrenAlive2.sol";
+import "./FrenStates1.sol";
+import "./FrenStates2.sol";
 
 
 
@@ -19,7 +19,6 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
       string name;
       string description;
       int256 happiness;
-      int256 hunger;
       int256 energy;
       int256 cleanliness;
       string frenColor1;
@@ -49,7 +48,6 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     Fren memory newFren = Fren(
         string(abi.encodePacked('Frens On Chain #', uint256(supply + 1).toString())), 
         "Frens On Chain is 100% on-chain, dynamic, NFT game. Frens On Chain last forever.",
-        101,
         101,
         101,
         101,        
@@ -84,8 +82,7 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     require(ownerOf(_tokenId) == msg.sender,"You are not the owner's of the Fren");
     require(msg.value >= feedCost);
     Fren storage fren = frens[_tokenId];
-    fren.happiness = fren.happiness + 5;
-    fren.hunger = fren.hunger + 7;
+    fren.energy = fren.energy + 2;
   }
 
   function clean(uint256 _tokenId) payable public {
@@ -94,8 +91,7 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     require(ownerOf(_tokenId) == msg.sender,"You are not the owner's of the Fren");
     require(msg.value >= cleanCost);
     Fren storage fren = frens[_tokenId];
-    fren.happiness = fren.happiness + 5;
-    fren.cleanliness = fren.cleanliness + 7;
+    fren.cleanliness = fren.cleanliness + 2;
   }
 
   function play(uint256 _tokenId) payable public {
@@ -104,8 +100,7 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     require(ownerOf(_tokenId) == msg.sender,"You are not the owner's of the Fren");
     require(msg.value >= playCost);
     Fren storage fren = frens[_tokenId];
-    fren.happiness = fren.happiness + 5;
-    fren.energy = fren.energy + 7;
+    fren.happiness = fren.happiness + 2;
   }
 
   function calculateDaysAlive(uint256 _tokenId) public view returns(int256) {
@@ -121,11 +116,10 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     require(_exists(_tokenId),"ERC721Metadata: Query for nonexistent token");
     Fren memory fren = frens[_tokenId];
     int256 daysAlive = calculateDaysAlive(_tokenId);
-    int256 hunger = fren.hunger - daysAlive;
     int256 energy = fren.energy - daysAlive;
     int256 cleanliness = fren.cleanliness - daysAlive;
     int256 happiness = fren.happiness - daysAlive;
-    if(hunger <= 0 || energy <= 0 || cleanliness <= 0 || happiness <= 0){
+    if(energy <= 0 || cleanliness <= 0 || happiness <= 0){
         return false;
     }else{
         return true;
@@ -138,31 +132,9 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     require(ownerOf(_tokenId) == msg.sender,"You are not the owner's of the Fren");
     require(msg.value >= reviveCost);
     Fren storage fren = frens[_tokenId];
-    fren.hunger = 100;
-    fren.energy = 100;
-    fren.cleanliness = 100;
-    fren.happiness = 100;
-  }
-  
-  function timeOfDeath(uint256 _tokenId) public view returns(uint256) {
-    require(_exists(_tokenId),"ERC721Metadata: Query for nonexistent token");
-    Fren memory fren = frens[_tokenId];
-    int256 daysAlive = calculateDaysAlive(_tokenId);
-    int256 hunger = fren.hunger - daysAlive;
-    int256 energy = fren.energy - daysAlive;
-    int256 cleanliness = fren.cleanliness - daysAlive;
-    int256 happiness = fren.happiness - daysAlive;
-    if(hunger <= 0){
-        return uint256(fren.bornTimestamp) + (100 - uint256(fren.hunger)) * 86400;
-    }else if(energy <= 0){
-        return uint256(fren.bornTimestamp) + (100 - uint256(fren.energy)) * 86400;
-    }else if(cleanliness <= 0){
-        return uint256(fren.bornTimestamp) + (100 - uint256(fren.cleanliness)) * 86400;
-    }else if(happiness <= 0){
-        return uint256(fren.bornTimestamp) + (100 - uint256(fren.happiness)) * 86400;
-    }else{
-        return 0;
-    }
+    fren.energy = 101;
+    fren.cleanliness = 101;
+    fren.happiness = 101;
   }
 
 //if the fren is dead for over 10 days, any user can rescue it and get possession of it
@@ -192,29 +164,45 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     int256 happiness = currentFren.happiness - daysAlive;
     // string memory name = currentFren.name;
     // uint256 backGroundColor = randomNum(361, block.prevrandao, _tokenId+100); 
-
-    if(isAlive(_tokenId)){
-        bytes memory imagePart1 = bytes(
+    bytes memory imagePart1 = bytes(
         abi.encodePacked(
             '<svg xmlns="http://www.w3.org/2000/svg" width="500" height="550" viewBox="0 0 20 22" preserveAspectRatio="xMidYMid slice"><style>.prefix__small{font:.7px Comic Sans MS}</style><defs><linearGradient id="prefix__background1"><stop stop-color="hsl(50, 70%, 50%)"/></linearGradient></defs><defs><linearGradient id="prefix__background2"><stop stop-color="hsl(',currentFren.frenColor1,', 30%, 50%)"/></linearGradient></defs><defs><linearGradient id="prefix__background3"><stop stop-color="hsl(',currentFren.frenColor2,', 30%, 50%)"/></linearGradient></defs><defs><linearGradient id="prefix__background4"><stop stop-color="hsl(360, 70%, ',currentFren.frenColor3,'%)"/></linearGradient></defs><defs><linearGradient id="prefix__background5"><stop stop-color="hsl(',currentFren.frenColor4,', 50%, 50%)"/></linearGradient></defs>'
         )
         );
-        //if energy, cleanliness, and happiness are above than 70, fren is happy
-        if(energy >= 70 && cleanliness >= 70 && happiness >= 70){
-          imagePart2 = FrenAlive1.Fren2StringHappy();
-        }
-        // else if those valuse are between 40 and 70, fren is neutral
-        else if(energy >= 40 && energy < 70 && cleanliness >= 40 && cleanliness < 70 && happiness >= 40 && happiness < 70){
-          imagePart2 = FrenAlive1.Fren2StringNeutral();
-        }
-        // else fren is sad
-        else{
-          imagePart2 = FrenAlive2.Fren2StringSad();
-        }
-        bytes memory imagePart3 = bytes(
+    bytes memory imagePart3 = bytes(
         abi.encodePacked(
             '<text x="1" y="1.5" class="prefix__small">#',_tokenId.toString(),'</text><text x="1.1" y="3" class="prefix__small">Toby</text><text x="1" y="21.3" class="prefix__small">Happiness: ',happiness.toString(),'</text><text x="8" y="21.3" class="prefix__small">Energy: ',energy.toString(),'</text><text x="14" y="21.3" class="prefix__small">Cleanliness: ',cleanliness.toString(),'</text></svg>'
         )
+    );
+    if(isAlive(_tokenId)){
+
+        //if energy, cleanliness, and happiness are above than 70, fren is happy
+        if(energy >= 70 && cleanliness >= 70 && happiness >= 70){
+          imagePart2 = FrenStates1.Fren2StringHappy();
+        }
+        // else if those valuse are between 40 and 70, fren is neutral
+        else if(energy >= 40 && energy < 70 && cleanliness >= 40 && cleanliness < 70 && happiness >= 40 && happiness < 70){
+          imagePart2 = FrenStates1.Fren2StringNeutral();
+        }
+        // else fren is sad
+        else{
+          imagePart2 = FrenStates2.Fren2StringSad();
+        }
+        string memory svg = Base64.encode(bytes(
+          abi.encodePacked(
+              imagePart1,
+              imagePart2,
+              imagePart3
+          )
+        ));
+        return svg;
+    }
+    else{
+        imagePart2 = FrenStates2.Fren2StringDead();
+        imagePart3 = bytes(
+          abi.encodePacked(
+              '<text x="1" y="1.5" class="prefix__small">#',_tokenId.toString(),'</text><text x="1.1" y="3" class="prefix__small">Toby</text><text x="1" y="21.3" class="prefix__small">Happiness: 0</text><text x="8" y="21.3" class="prefix__small">Energy: 0</text><text x="14" y="21.3" class="prefix__small">Cleanliness: 0</text></svg>'
+          )
         );
         string memory svg = Base64.encode(bytes(
           abi.encodePacked(
@@ -225,7 +213,6 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
         ));
         return svg;
     }
-    return "dead";
   }
   
   function buildMetadata(uint256 _tokenId) public view returns(string memory) {

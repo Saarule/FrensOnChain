@@ -2,7 +2,7 @@
 
 pragma solidity >=0.8.0 <0.9.0;
 
-library FrenAlive1 {
+library FrenStates1 {
     function Fren2StringHappy() public pure returns (bytes memory) {
         return bytes(
           abi.encodePacked(
