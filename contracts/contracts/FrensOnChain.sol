@@ -6,7 +6,9 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Base64.sol";
-import "./FrenAlive.sol";
+import "./FrenAlive1.sol";
+import "./FrenAlive2.sol";
+
 
 
 contract FrensOnChain is ERC721Enumerable, Ownable {
@@ -182,7 +184,7 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
   
   function buildImage(uint256 _tokenId) public view returns(string memory) {
     Fren memory currentFren = frens[_tokenId];
-
+    bytes memory imagePart2;
     int256 daysAlive = calculateDaysAlive(_tokenId); 
     // int256 hunger = currentFren.hunger - daysAlive;
     int256 energy = currentFren.energy - daysAlive;
@@ -197,7 +199,18 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
             '<svg xmlns="http://www.w3.org/2000/svg" width="500" height="550" viewBox="0 0 20 22" preserveAspectRatio="xMidYMid slice"><style>.prefix__small{font:.7px Comic Sans MS}</style><defs><linearGradient id="prefix__background1"><stop stop-color="hsl(50, 70%, 50%)"/></linearGradient></defs><defs><linearGradient id="prefix__background2"><stop stop-color="hsl(',currentFren.frenColor1,', 30%, 50%)"/></linearGradient></defs><defs><linearGradient id="prefix__background3"><stop stop-color="hsl(',currentFren.frenColor2,', 30%, 50%)"/></linearGradient></defs><defs><linearGradient id="prefix__background4"><stop stop-color="hsl(360, 70%, ',currentFren.frenColor3,'%)"/></linearGradient></defs><defs><linearGradient id="prefix__background5"><stop stop-color="hsl(',currentFren.frenColor4,', 50%, 50%)"/></linearGradient></defs>'
         )
         );
-        bytes memory imagePart2 = FrenAlive.Fren2String();
+        //if energy, cleanliness, and happiness are above than 70, fren is happy
+        if(energy >= 70 && cleanliness >= 70 && happiness >= 70){
+          imagePart2 = FrenAlive1.Fren2StringHappy();
+        }
+        // else if those valuse are between 40 and 70, fren is neutral
+        else if(energy >= 40 && energy < 70 && cleanliness >= 40 && cleanliness < 70 && happiness >= 40 && happiness < 70){
+          imagePart2 = FrenAlive1.Fren2StringNeutral();
+        }
+        // else fren is sad
+        else{
+          imagePart2 = FrenAlive2.Fren2StringSad();
+        }
         bytes memory imagePart3 = bytes(
         abi.encodePacked(
             '<text x="1" y="1.5" class="prefix__small">#',_tokenId.toString(),'</text><text x="1.1" y="3" class="prefix__small">Toby</text><text x="1" y="21.3" class="prefix__small">Happiness: ',happiness.toString(),'</text><text x="8" y="21.3" class="prefix__small">Energy: ',energy.toString(),'</text><text x="14" y="21.3" class="prefix__small">Cleanliness: ',cleanliness.toString(),'</text></svg>'
