@@ -30,7 +30,7 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
    }
    
    mapping (uint256 => Fren) public frens;
-   mapping (address => uint256[]) public frensOfOwner;
+   mapping (address => mapping(uint256 => Fren)) public frensOfOwner;
    uint256 public generationCost = 0.005 ether;
    uint256 public feedCost = 0.0005 ether;
    uint256 public cleanCost = 0.0005 ether;
@@ -61,7 +61,7 @@ contract FrensOnChain is ERC721Enumerable, Ownable {
     }
     
     frens[supply + 1] = newFren;
-    frensOfOwner[msg.sender].push(supply + 1);
+    frensOfOwner[msg.sender][supply + 1] = newFren;
     _safeMint(msg.sender, supply + 1);
     generationCost = (generationCost * 101) / 100;
 
